@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dart Sorting Algorithms Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Slate -->
+    <!-- Application Structure Plan: The SPA uses a side-navigation and dynamic content panel structure. A vertical navigation bar on the left lists all sorting algorithms and a 'Comparison' view. Clicking an item updates the main content area to display only the relevant information (description, logic, complexity, code) or the comparison chart. This was chosen to provide a focused, uncluttered user experience, preventing the cognitive overload of a long scrolling document and allowing for easy, direct comparison by switching between sections. -->
+    <!-- Visualization & Content Choices: Algorithm Details -> Goal: Inform -> Method: Themed content cards with distinct sections for text and a styled code block. -> Interaction: 'Copy to Clipboard' button for code. Justification: Clear, organized presentation for learning. | Time Complexity Comparison -> Goal: Compare -> Method: Chart.js Grouped Bar Chart. The O-notations are mapped to a numerical scale for visual representation of performance differences. -> Interaction: Tooltips on hover provide specific complexity data. Justification: A visual chart is far more effective for comparing performance characteristics than reading text across multiple sections. It synthesizes the most critical comparison point. Library: Chart.js. | Navigation -> Goal: Organize -> Method: Vertical button list -> Interaction: Click to switch content views. Justification: Standard, intuitive navigation for single-page applications. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .nav-item.active {
+            background-color: #e2e8f0;
+            color: #1e293b;
+            font-weight: 600;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .code-block {
+            background-color: #1e293b;
+            color: #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #475569;
+            color: #e2e8f0;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .copy-btn:hover {
+            background-color: #64748b;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 60vh;
+            max-height: 500px;
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+    <div class="flex min-h-screen">
+        <aside class="w-64 bg-white border-r border-slate-200 p-4 fixed h-full">
+            <h1 class="text-xl font-bold text-slate-900 mb-6">Dart Sorting</h1>
+            <nav id="navigation" class="flex flex-col space-y-2">
+                <button data-target="bubble-sort" class="nav-item text-left p-2 rounded-md hover:bg-slate-100 transition-colors">Bubble Sort</button>
+                <button data-target="selection-sort" class="nav-item text-left p-2 rounded-md hover:bg-slate-100 transition-colors">Selection Sort</button>
+                <button data-target="insertion-sort" class="nav-item text-left p-2 rounded-md hover:bg-slate-100 transition-colors">Insertion Sort</button>
+                <button data-target="merge-sort" class="nav-item text-left p-2 rounded-md hover:bg-slate-100 transition-colors">Merge Sort</button>
+                <button data-target="quick-sort" class="nav-item text-left p-2 rounded-md hover:bg-slate-100 transition-colors">Quick Sort</button>
+                <hr class="my-2 border-slate-200">
+                <button data-target="comparison" class="nav-item text-left p-2 rounded-md hover:bg-slate-100 transition-colors">Comparison</button>
+            </nav>
+        </aside>
+
+        <main class="ml-64 flex-1 p-6 md:p-10">
+            <div id="bubble-sort" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-900 mb-4">Bubble Sort</h2>
+                <p class="text-slate-600 mb-6 max-w-3xl">This section provides a detailed look at the Bubble Sort algorithm. You can explore its description, underlying logic, performance characteristics, and review the complete Dart implementation.</p>
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-semibold mb-2">Description</h3>
+                    <p class="text-slate-700 mb-4">Bubble Sort is a simple algorithm that repeatedly steps through the list, comparing and swapping adjacent elements if they are in the wrong order. This process "bubbles" the largest elements to the end.</p>
+                    <h3 class="text-lg font-semibold mb-2">Loop Logic</h3>
+                    <p class="text-slate-700 mb-4">It uses two nested loops. The outer loop iterates through the list from the beginning, and the inner loop compares adjacent elements and swaps them, which "bubbles" the largest unsorted element to its correct position at the end of the list.</p>
+                    <h3 class="text-lg font-semibold mb-2">Time Complexity</h3>
+                    <ul class="list-disc list-inside text-slate-700 mb-6 space-y-1">
+                        <li><strong>Best Case:</strong> $O(n)$ - When the list is already sorted.</li>
+                        <li><strong>Average Case:</strong> $O(n^2)$</li>
+                        <li><strong>Worst Case:</strong> $O(n^2)$ - When the list is sorted in reverse.</li>
+                    </ul>
+                    <h3 class="text-lg font-semibold mb-2">Dart Code</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><code class="language-dart">void main() {
+  /// Sorts a list of integers using the Bubble Sort algorithm.
+  List&lt;int&gt; bubbleSort(List&lt;int&gt; list) {
+    int n = list.length;
+    for (int i = 0; i &lt; n - 1; i++) {
+      bool swapped = false;
+      for (int j = 0; j &lt; n - i - 1; j++) {
+        if (list[j] > list[j + 1]) {
+          // Swap elements
+          int temp = list[j];
+          list[j] = list[j + 1];
+          list[j + 1] = temp;
+          swapped = true;
+        }
+      }
+      // If no two elements were swapped by inner loop, the list is sorted
+      if (!swapped) break;
+    }
+    return list;
+  }
+
+  // --- Main execution ---
+  print("--- Bubble Sort ---");
+  List&lt;int&gt; numbers = [64, 34, 25, 12, 22, 11, 90];
+  print("Original list: $numbers");
+  List&lt;int&gt; sortedNumbers = bubbleSort(List&lt;int&gt;.from(numbers));
+  print("Sorted list:   $sortedNumbers\n");
+}
+</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div id="selection-sort" class="content-section">
+                 <h2 class="text-3xl font-bold text-slate-900 mb-4">Selection Sort</h2>
+                <p class="text-slate-600 mb-6 max-w-3xl">This section provides a detailed look at the Selection Sort algorithm. You can explore its description, underlying logic, performance characteristics, and review the complete Dart implementation.</p>
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-semibold mb-2">Description</h3>
+                    <p class="text-slate-700 mb-4">Selection Sort divides the list into a sorted and an unsorted part. It repeatedly finds the minimum element from the unsorted part and moves it to the sorted part.</p>
+                    <h3 class="text-lg font-semibold mb-2">Loop Logic</h3>
+                    <p class="text-slate-700 mb-4">It uses two nested loops. The outer loop iterates from the start to the second-to-last element. The inner loop finds the index of the minimum element in the unsorted portion of the list and swaps it with the element at the current position of the outer loop.</p>
+                    <h3 class="text-lg font-semibold mb-2">Time Complexity</h3>
+                    <ul class="list-disc list-inside text-slate-700 mb-6 space-y-1">
+                        <li><strong>Best Case:</strong> $O(n^2)$</li>
+                        <li><strong>Average Case:</strong> $O(n^2)$</li>
+                        <li><strong>Worst Case:</strong> $O(n^2)$</li>
+                    </ul>
+                    <h3 class="text-lg font-semibold mb-2">Dart Code</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><code class="language-dart">void main() {
+  /// Sorts a list of integers using the Selection Sort algorithm.
+  List&lt;int&gt; selectionSort(List&lt;int&gt; list) {
+    int n = list.length;
+    for (int i = 0; i &lt; n - 1; i++) {
+      // Find the minimum element in the unsorted part of the list
+      int minIndex = i;
+      for (int j = i + 1; j &lt; n; j++) {
+        if (list[j] < list[minIndex]) {
+          minIndex = j;
+        }
+      }
+      // Swap the found minimum element with the first element of the unsorted part
+      int temp = list[minIndex];
+      list[minIndex] = list[i];
+      list[i] = temp;
+    }
+    return list;
+  }
+
+  // --- Main execution ---
+  print("--- Selection Sort ---");
+  List&lt;int&gt; numbers = [64, 25, 12, 22, 11];
+  print("Original list: $numbers");
+  List&lt;int&gt; sortedNumbers = selectionSort(List&lt;int&gt;.from(numbers));
+  print("Sorted list:   $sortedNumbers\n");
+}
+</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div id="insertion-sort" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-900 mb-4">Insertion Sort</h2>
+                <p class="text-slate-600 mb-6 max-w-3xl">This section provides a detailed look at the Insertion Sort algorithm. You can explore its description, underlying logic, performance characteristics, and review the complete Dart implementation.</p>
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-semibold mb-2">Description</h3>
+                    <p class="text-slate-700 mb-4">Insertion Sort builds the final sorted list one item at a time. It iterates through the input list, picking one element per iteration and inserting it into its correct position in the sorted part.</p>
+                    <h3 class="text-lg font-semibold mb-2">Loop Logic</h3>
+                    <p class="text-slate-700 mb-4">It uses a single main loop that iterates from the second element to the end. In each iteration, it takes the current element (the "key") and compares it with the elements in the sorted portion to its left, shifting them to the right until it finds the correct position for the key.</p>
+                    <h3 class="text-lg font-semibold mb-2">Time Complexity</h3>
+                    <ul class="list-disc list-inside text-slate-700 mb-6 space-y-1">
+                        <li><strong>Best Case:</strong> $O(n)$ - When the list is already sorted.</li>
+                        <li><strong>Average Case:</strong> $O(n^2)$</li>
+                        <li><strong>Worst Case:</strong> $O(n^2)$ - When the list is sorted in reverse.</li>
+                    </ul>
+                    <h3 class="text-lg font-semibold mb-2">Dart Code</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><code class="language-dart">void main() {
+  /// Sorts a list of integers using the Insertion Sort algorithm.
+  List&lt;int&gt; insertionSort(List&lt;int&gt; list) {
+    int n = list.length;
+    for (int i = 1; i &lt; n; i++) {
+      int key = list[i];
+      int j = i - 1;
+
+      // Move elements of list[0..i-1], that are greater than key,
+      // to one position ahead of their current position
+      while (j >= 0 && list[j] > key) {
+        list[j + 1] = list[j];
+        j = j - 1;
+      }
+      list[j + 1] = key;
+    }
+    return list;
+  }
+  
+  // --- Main execution ---
+  print("--- Insertion Sort ---");
+  List&lt;int&gt; numbers = [12, 11, 13, 5, 6];
+  print("Original list: $numbers");
+  List&lt;int&gt; sortedNumbers = insertionSort(List&lt;int&gt;.from(numbers));
+  print("Sorted list:   $sortedNumbers\n");
+}
+</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div id="merge-sort" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-900 mb-4">Merge Sort</h2>
+                <p class="text-slate-600 mb-6 max-w-3xl">This section provides a detailed look at the Merge Sort algorithm. You can explore its description, underlying logic, performance characteristics, and review the complete Dart implementation.</p>
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-semibold mb-2">Description</h3>
+                    <p class="text-slate-700 mb-4">Merge Sort is a divide-and-conquer algorithm that divides the list into two halves, recursively sorts them, and then merges the two sorted halves back together.</p>
+                    <h3 class="text-lg font-semibold mb-2">Loop Logic</h3>
+                    <p class="text-slate-700 mb-4">The logic is recursive. A function repeatedly splits the list in half until it has lists of size 1. Another function then merges these smaller sorted lists back together in the correct order until the full list is reassembled.</p>
+                    <h3 class="text-lg font-semibold mb-2">Time Complexity</h3>
+                    <ul class="list-disc list-inside text-slate-700 mb-6 space-y-1">
+                        <li><strong>Best Case:</strong> $O(n \log n)$</li>
+                        <li><strong>Average Case:</strong> $O(n \log n)$</li>
+                        <li><strong>Worst Case:</strong> $O(n \log n)$</li>
+                    </ul>
+                    <h3 class="text-lg font-semibold mb-2">Dart Code</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><code class="language-dart">void main() {
+  /// Merges two sorted sublists into a single sorted list.
+  void merge(List&lt;int&gt; list, int left, int middle, int right) {
+    // Find sizes of two subarrays to be merged
+    int n1 = middle - left + 1;
+    int n2 = right - middle;
+
+    // Create temp arrays
+    List&lt;int&gt; L = List&lt;int&gt;.filled(n1, 0);
+    List&lt;int&gt; R = List&lt;int&gt;.filled(n2, 0);
+
+    // Copy data to temp arrays
+    for (int i = 0; i &lt; n1; ++i) L[i] = list[left + i];
+    for (int j = 0; j &lt; n2; ++j) R[j] = list[middle + 1 + j];
+
+    // Merge the temp arrays
+    int i = 0, j = 0;
+    int k = left;
+    while (i &lt; n1 && j &lt; n2) {
+      if (L[i] &lt;= R[j]) {
+        list[k] = L[i];
+        i++;
+      } else {
+        list[k] = R[j];
+        j++;
+      }
+      k++;
+    }
+
+    // Copy remaining elements of L[] if any
+    while (i &lt; n1) {
+      list[k] = L[i];
+      i++;
+      k++;
+    }
+
+    // Copy remaining elements of R[] if any
+    while (j &lt; n2) {
+      list[k] = R[j];
+      j++;
+      k++;
+    }
+  }
+
+  /// Sorts a list of integers using the Merge Sort algorithm.
+  void mergeSort(List&lt;int&gt; list, int left, int right) {
+    if (left &lt; right) {
+      // Find the middle point
+      int middle = (left + (right - left) / 2).floor();
+
+      // Sort first and second halves
+      mergeSort(list, left, middle);
+      mergeSort(list, middle + 1, right);
+
+      // Merge the sorted halves
+      merge(list, left, middle, right);
+    }
+  }
+
+  // --- Main execution ---
+  print("--- Merge Sort ---");
+  List&lt;int&gt; numbers = [12, 11, 13, 5, 6, 7];
+  print("Original list: $numbers");
+  List&lt;int&gt; listCopy = List&lt;int&gt;.from(numbers);
+  mergeSort(listCopy, 0, listCopy.length - 1);
+  print("Sorted list:   $listCopy\n");
+}
+</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div id="quick-sort" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-900 mb-4">Quick Sort</h2>
+                <p class="text-slate-600 mb-6 max-w-3xl">This section provides a detailed look at the Quick Sort algorithm. You can explore its description, underlying logic, performance characteristics, and review the complete Dart implementation.</p>
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                    <h3 class="text-lg font-semibold mb-2">Description</h3>
+                    <p class="text-slate-700 mb-4">Quick Sort is a divide-and-conquer algorithm that picks a 'pivot' element and partitions the list around it, placing smaller elements before the pivot and larger elements after.</p>
+                    <h3 class="text-lg font-semibold mb-2">Loop Logic</h3>
+                    <p class="text-slate-700 mb-4">The logic is recursive. A `partition` function selects a pivot (often the last element), places it at its correct sorted position, and puts all smaller elements to its left and larger elements to its right. The `quickSort` function is then called recursively for the two sub-arrays.</p>
+                    <h3 class="text-lg font-semibold mb-2">Time Complexity</h3>
+                    <ul class="list-disc list-inside text-slate-700 mb-6 space-y-1">
+                        <li><strong>Best Case:</strong> $O(n \log n)$</li>
+                        <li><strong>Average Case:</strong> $O(n \log n)$</li>
+                        <li><strong>Worst Case:</strong> $O(n^2)$ - When the pivot choices are consistently poor.</li>
+                    </ul>
+                    <h3 class="text-lg font-semibold mb-2">Dart Code</h3>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><code class="language-dart">void main() {
+  /// Partitions the list and returns the pivot index.
+  int partition(List&lt;int&gt; list, int low, int high) {
+    int pivot = list[high];
+    int i = (low - 1); // Index of smaller element
+
+    for (int j = low; j &lt; high; j++) {
+      // If current element is smaller than the pivot
+      if (list[j] < pivot) {
+        i++;
+        // Swap list[i] and list[j]
+        int temp = list[i];
+        list[i] = list[j];
+        list[j] = temp;
+      }
+    }
+
+    // Swap list[i+1] and list[high] (or pivot)
+    int temp = list[i + 1];
+    list[i + 1] = list[high];
+    list[high] = temp;
+
+    return i + 1;
+  }
+
+  /// Sorts a list of integers using the Quick Sort algorithm.
+  void quickSort(List&lt;int&gt; list, int low, int high) {
+    if (low &lt; high) {
+      // pi is partitioning index, list[pi] is now at right place
+      int pi = partition(list, low, high);
+
+      // Recursively sort elements before partition and after partition
+      quickSort(list, low, pi - 1);
+      quickSort(list, pi + 1, high);
+    }
+  }
+
+  // --- Main execution ---
+  print("--- Quick Sort ---");
+  List&lt;int&gt; numbers = [10, 7, 8, 9, 1, 5];
+  print("Original list: $numbers");
+  List&lt;int&gt; listCopy = List&lt;int&gt;.from(numbers);
+  quickSort(listCopy, 0, listCopy.length - 1);
+  print("Sorted list:   $listCopy\n");
+}
+</code></pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="comparison" class="content-section">
+                <h2 class="text-3xl font-bold text-slate-900 mb-4">Algorithm Comparison</h2>
+                <p class="text-slate-600 mb-6 max-w-3xl">This chart provides a visual comparison of the time complexities for each sorting algorithm across best, average, and worst-case scenarios. A lower bar indicates better performance. This helps in quickly identifying the most efficient algorithm for a given situation.</p>
+                <div class="bg-white p-6 rounded-lg shadow-sm border border-slate-200">
+                     <div class="chart-container">
+                        <canvas id="complexityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const navItems = document.querySelectorAll('.nav-item');
+            const contentSections = document.querySelectorAll('.content-section');
+            const navigation = document.getElementById('navigation');
+
+            function showContent(targetId) {
+                contentSections.forEach(section => {
+                    section.classList.remove('active');
+                });
+                navItems.forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                document.getElementById(targetId).classList.add('active');
+                navigation.querySelector(`[data-target="${targetId}"]`).classList.add('active');
+            }
+
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    showContent(item.dataset.target);
+                });
+            });
+
+            showContent('bubble-sort');
+
+            const complexityData = {
+                labels: ['Bubble Sort', 'Selection Sort', 'Insertion Sort', 'Merge Sort', 'Quick Sort'],
+                datasets: [
+                    {
+                        label: 'Best Case',
+                        data: [1, 3, 1, 2, 2],
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Average Case',
+                        data: [3, 3, 3, 2, 2],
+                        backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                        borderColor: 'rgba(255, 159, 64, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Worst Case',
+                        data: [3, 3, 3, 2, 3],
+                        backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            };
+            
+            const complexityMap = {
+                1: 'O(n)',
+                2: 'O(n log n)',
+                3: 'O(n²)'
+            };
+
+            const ctx = document.getElementById('complexityChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: complexityData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Time Complexity Comparison',
+                            font: { size: 18 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += complexityMap[context.parsed.y];
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    return complexityMap[value] || '';
+                                },
+                                stepSize: 1
+                            },
+                            title: {
+                                display: true,
+                                text: 'Complexity (Lower is better)'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        function copyCode(button) {
+            const codeBlock = button.nextElementSibling;
+            const code = codeBlock.querySelector('code').innerText;
+            
+            const textarea = document.createElement('textarea');
+            textarea.value = code;
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                button.innerText = 'Copied!';
+                setTimeout(() => {
+                    button.innerText = 'Copy';
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy text: ', err);
+                button.innerText = 'Error';
+                 setTimeout(() => {
+                    button.innerText = 'Copy';
+                }, 2000);
+            }
+
+            document.body.removeChild(textarea);
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/latex.js/dist/latex.min.js"></script>
+</body>
+</html>
